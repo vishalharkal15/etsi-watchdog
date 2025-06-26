@@ -13,3 +13,57 @@ Install the latest version:
 ```bash
 pip install etsi-watchdog
 ```
+---
+
+## Features
+
+``` bash
+Supports numeric and categorical features
+
+Uses PSI (Population Stability Index) for drift detection
+
+Safe binning and smoothing to avoid division errors
+
+Per-column drift scoring
+
+Customizable hooks via .on_drift() to trigger actions
+
+Simple and extensible API
+```
+
+---
+
+## Quick Start
+
+``` bash
+
+from etsi.watchdog import DriftMonitor
+import pandas as pd
+
+# Reference (training) data
+X_ref = pd.read_csv("train.csv")
+
+# Incoming (production) batch
+X_live = pd.read_csv("production.csv")
+
+# Initialize and monitor
+monitor = DriftMonitor(reference=X_ref)
+
+# Run check and handle drift
+monitor.watch(X_live, threshold=0.2).on_drift(lambda: print("Drift detected"))
+```
+
+---
+
+## Use Cases
+
+``` bash 
+Monitor batch data for concept drift
+
+Trigger model retraining workflows
+
+Add drift alerts to production pipelines
+
+Validate incoming data quality in staging or CI pipelines
+
+```
