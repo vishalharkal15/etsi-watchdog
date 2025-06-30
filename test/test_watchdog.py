@@ -14,7 +14,7 @@ X_live = pd.DataFrame({
 })
 
 def alert():
-    print("🚨 Drift detected! Take action!")
+    print(" Drift detected! Take action!")
 
 monitor = DriftMonitor(reference=X_ref)
 result = monitor.watch(X_live, threshold=0.2)

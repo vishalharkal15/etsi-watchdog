@@ -24,7 +24,7 @@ def generate_data():
 
 
 def test_drift_check():
-    print("\n🧪 Running DriftCheck...")
+    print("\n===== Running DriftCheck ====")
     ref, live = generate_data()
 
     check = DriftCheck(ref)
@@ -38,7 +38,7 @@ def test_drift_check():
 
 
 def test_monitor():
-    print("\n🧪 Running DriftMonitor...")
+    print("\n==== Running DriftMonitor ====")
     ref, _ = generate_data()
     monitor = Monitor(ref)
     monitor.enable_logging("logs/rolling_log.csv")
@@ -63,7 +63,7 @@ def test_monitor():
 
 
 def test_comparator():
-    print("\n🧪 Running DriftComparator...")
+    print("\n ==== Running DriftComparator ====")
     ref, live1 = generate_data()
     _, live2 = generate_data()
     live2['age'] -= 2  # simulate correction
@@ -75,7 +75,7 @@ def test_comparator():
     comp = DriftComparator(r1, r2)
     diff = comp.diff()
 
-    print("[✓] DriftComparator passed.")
+    print("[✓] DriftComparator passed")
     for k, v in diff.items():
         print(f"{k}: Δ PSI = {v:+.4f}")
 
@@ -85,4 +85,4 @@ if __name__ == "__main__":
     test_drift_check()
     test_monitor()
     test_comparator()
-    print("\n🎉 All watchdog component tests passed.")
+    print("\n---All watchdog component tests passed----")
