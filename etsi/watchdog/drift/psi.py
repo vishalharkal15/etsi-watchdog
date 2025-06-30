@@ -43,6 +43,11 @@ def compute_psi(expected, actual, buckets=10, threshold=0.2):
 
 
 def psi_drift(reference_df, current_df, feature, threshold=0.2):
+    # Only process numeric data
+    if not np.issubdtype(reference_df[feature].dtype, np.number):
+        warnings.warn(f"[watchdog] ⚠️ Skipping '{feature}' — PSI requires numeric data.")
+        return None
+
     ref = reference_df[feature].dropna().values
     cur = current_df[feature].dropna().values
 

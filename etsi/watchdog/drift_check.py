@@ -19,6 +19,8 @@ class DriftCheck:
         self.threshold = threshold
         self._func = get_drift_function(algorithm)
 
+    # etsi/watchdog/drift_check.py
+
     def run(self, current_df, features):
         results = {}
         for feat in features:
@@ -32,5 +34,8 @@ class DriftCheck:
                 feature=feat,
                 threshold=self.threshold
             )
-            results[feat] = result
+
+            if result is not None:
+                results[feat] = result
         return results
+
