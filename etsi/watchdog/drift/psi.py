@@ -1,9 +1,11 @@
+# etsi/watchdog/drift/psi.py
+
 import numpy as np
 import warnings
 from .base import DriftResult
 
 
-def compute_psi(expected, actual, threshold=0.2, buckets=10) -> DriftResult:
+def compute_psi(expected, actual, buckets=10, threshold=0.2):
     def scale_range(array):
         min_val, max_val = np.min(array), np.max(array)
         return min_val, max_val + 1e-8  # avoid div-by-zero
@@ -44,12 +46,7 @@ def psi_drift(reference_df, current_df, feature, threshold=0.2):
     ref = reference_df[feature].dropna().values
     cur = current_df[feature].dropna().values
 
-    # Handle categorical column — skip for now
-    if not np.issubdtype(ref.dtype, np.number) or not np.issubdtype(cur.dtype, np.number):
-        raise TypeError(f"[watchdog] Feature '{feature}' is non-numeric. PSI only supports numeric features.")
-
     if len(cur) < 50:
-        warnings.warn(f"[watchdog] Sample size too small for reliable PSI (<50): {len(cur)}", stacklevel=2)
+        warnings.warn(f"[watchdog] ⚠️ Sample size too small for reliable PSI (<50): {len(cur)}", stacklevel=2)
 
     return compute_psi(ref, cur, threshold=threshold)
-

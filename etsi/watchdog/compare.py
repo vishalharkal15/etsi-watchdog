@@ -1,33 +1,32 @@
-import json
+# etsi/watchdog/compare.py
 
 class DriftComparator:
-    def __init__(self, result1=None, result2=None):
-        self.result1 = result1
-        self.result2 = result2
+    """
+    DriftComparator — Compare drift scores between two DriftCheck results.
 
-    def compare_logs(self, log1_path, log2_path):
-        with open(log1_path) as f1, open(log2_path) as f2:
-            run1 = json.load(f1)
-            run2 = json.load(f2)
+    Example:
+    >>> comp = DriftComparator(results_v1, results_v2)
+    >>> deltas = comp.diff()
+    """
 
-        print("\n🔍 Drift Comparison Report (Logs)")
-        for feat in run1:
-            if feat in run2:
-                score1 = run1[feat]["score"]
-                score2 = run2[feat]["score"]
-                delta = score2 - score1
-                trend = "⬆️" if delta > 0 else "⬇️"
-                print(f"{feat}: v1={score1:.3f} → v2={score2:.3f} {trend} Δ={delta:.3f}")
+    def __init__(self, results1, results2):
+        self.results1 = results1
+        self.results2 = results2
 
     def diff(self):
-        if not self.result1 or not self.result2:
-            raise ValueError("Both results must be set for in-memory comparison.")
+        deltas = {}
+        for feature in self.results1:
+            if feature in self.results2:
+                score1 = self.results1[feature].score
+                score2 = self.results2[feature].score
+                deltas[feature] = score2 - score1
+        return deltas
 
-        scores1 = self.result1.details
-        scores2 = self.result2.details
-
-        delta = {}
-        for feat in scores1:
-            if feat in scores2:
-                delta[feat] = round(scores2[feat] - scores1[feat], 4)
-        return delta
+    def report(self):
+        print("\n🔍 Drift Comparison Report")
+        for feature in self.diff():
+            delta = self.diff()[feature]
+            score1 = self.results1[feature].score
+            score2 = self.results2[feature].score
+            trend = "⬆️" if delta > 0 else "⬇️"
+            print(f"{feature}: v1={score1:.4f} → v2={score2:.4f} {trend} Δ={delta:+.4f}")

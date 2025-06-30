@@ -1,21 +1,24 @@
-# etsi/watchdog/logger.py
-
-import os
 import json
-from datetime import datetime
+import os
+import pandas as pd
 
-def log_drift(result, path):
-    """Log DriftResult summary to a JSON file."""
+def log_drift(result_dict, path: str):
+    rows = []
+    for feat, result in result_dict.items():
+        row = {
+            "feature": feat,
+            "score": result.score,
+            "threshold": result.threshold,
+            "is_drifted": result.is_drifted,
+            "sample_size": result.sample_size
+        }
+        rows.append(row)
+
+    df = pd.DataFrame(rows)
+
     os.makedirs(os.path.dirname(path), exist_ok=True)
-
-    log_data = {
-        "timestamp": datetime.now().isoformat(),
-        "drift": result.is_drifted,
-        "score": result.score,
-        "details": result.details
-    }
-
-    with open(path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_data) + "\n")
-
-    print(f"[watchdog] Drift log saved → {path}")
+    if path.endswith(".json"):
+        df.to_json(path, orient="records", indent=2)
+    else:
+        df.to_csv(path, index=False)
+    print(f"[watchdog] ✅ DriftResult written to {path}")

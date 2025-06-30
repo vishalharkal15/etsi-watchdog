@@ -1,34 +1,45 @@
-import pandas as pd
+# etsi/watchdog/monitor.py
+
+from .drift_check import DriftCheck
 from .logger import log_drift
-from typing import List
+import pandas as pd
+
 
 class Monitor:
-    def __init__(self, reference):
-        self.reference = reference
+    """
+    Monitor — Periodic/rolling drift monitoring.
+
+    Example:
+    >>> monitor = Monitor(reference_df)
+    >>> monitor.enable_logging("logs/drift.csv")
+    >>> monitor.watch(live_df)
+    """
+
+    def __init__(self, reference_df):
+        self.reference = reference_df
         self.log_path = None
 
     def enable_logging(self, path: str):
         self.log_path = path
 
-    def watch(self, live: pd.DataFrame, threshold=0.2, algo="psi"):
-        from .drift.factory import get_drift_function
-        from . import DriftCheck  # 🔁 Lazy import to avoid circular
+    def watch(self, live_df: pd.DataFrame, features=None, algorithm="psi", threshold=0.2):
+        checker = DriftCheck(self.reference, algorithm=algorithm, threshold=threshold)
+        features = features or list(self.reference.columns)
+        results = checker.run(live_df, features=features)
 
-        checker = DriftCheck(self.reference, algorithm=algo, threshold=threshold)
-        result = checker.run(live, features=self.reference.columns)
+        for feat, res in results.items():
+            if self.log_path:
+                log_drift(res, self.log_path, feature=feat)
+        return results
 
-
-        if self.log_path:
-            log_drift(result, self.log_path)
-        return result
-
-    def watch_rolling(self, live: pd.DataFrame, window=50, freq="D", threshold=0.2, algo="psi"):
-        if not isinstance(live.index, pd.DatetimeIndex):
-            raise ValueError("Live data must have a DatetimeIndex for rolling drift.")
+    def watch_rolling(self, live_df: pd.DataFrame, window=50, freq="D", features=None, algorithm="psi", threshold=0.2):
+        if not isinstance(live_df.index, pd.DatetimeIndex):
+            raise ValueError("Live data must have a DatetimeIndex for rolling drift detection.")
 
         results = []
-        for date, group in live.groupby(pd.Grouper(freq=freq)):
+        for timestamp, group in live_df.groupby(pd.Grouper(freq=freq)):
             if len(group) >= window:
-                res = self.watch(group.tail(window), threshold=threshold, algo=algo)
-                results.append((date, res))
+                chunk = group.tail(window)
+                result = self.watch(chunk, features=features, algorithm=algorithm, threshold=threshold)
+                results.append((timestamp, result))
         return results
