@@ -45,13 +45,13 @@ def compute_psi(expected, actual, buckets=10, threshold=0.2):
 def psi_drift(reference_df, current_df, feature, threshold=0.2):
     # Only process numeric data
     if not np.issubdtype(reference_df[feature].dtype, np.number):
-        warnings.warn(f"[watchdog] ⚠️ Skipping '{feature}' — PSI requires numeric data.")
+        warnings.warn(f"[etsi-watchdog] Skipping '{feature}' — PSI requires numeric data.")
         return None
 
     ref = reference_df[feature].dropna().values
     cur = current_df[feature].dropna().values
 
     if len(cur) < 50:
-        warnings.warn(f"[watchdog] ⚠️ Sample size too small for reliable PSI (<50): {len(cur)}", stacklevel=2)
+        warnings.warn(f"[etsi-watchdog] Sample size too small for reliable PSI (<50): {len(cur)}", stacklevel=2)
 
     return compute_psi(ref, cur, threshold=threshold)

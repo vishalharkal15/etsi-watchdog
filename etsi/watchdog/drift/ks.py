@@ -7,7 +7,7 @@ def ks_drift(reference_df, current_df, feature, threshold=0.2) -> DriftResult:
     cur = current_df[feature].dropna().values
 
     if len(cur) < 50:
-        warnings.warn(f"[watchdog] ⚠️ Feature '{feature}' has few samples (<50): {len(cur)}", stacklevel=2)
+        warnings.warn(f"[etsi-watchdog] Feature '{feature}' has few samples (<50): {len(cur)}", stacklevel=2)
 
     stat, pval = ks_2samp(ref, cur)
 

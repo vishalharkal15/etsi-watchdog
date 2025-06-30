@@ -37,4 +37,4 @@ class DriftHook:
         try:
             action()
         except Exception as e:
-            print(f"[DriftHook] ⚠️ Error in hook action: {e}")
+            print(f"[etsi-watchdog] Error in hook action: {e}")

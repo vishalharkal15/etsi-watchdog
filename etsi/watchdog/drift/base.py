@@ -18,7 +18,7 @@ class DriftResult:
         return self.score > self.threshold
 
     def summary(self) -> str:
-        status = "🚨 Drift Detected!" if self.is_drifted else "✅ No Drift"
+        status = "[etsi-watchdog] Drift Detected!" if self.is_drifted else "[etsi-watchdog] No Drift"
         return f"[{self.method.upper()}] Drift Score: {self.score:.4f} (threshold: {self.threshold}) — {status}"
 
     def plot(self):
@@ -43,5 +43,5 @@ class DriftResult:
         if path:
             with open(path, "w") as f:
                 json.dump(data, f, indent=2)
-            print(f"[watchdog] ✅ DriftResult written to {path}")
+            print(f"[etsi-watchdog] DriftResult written to {path}")
         return data

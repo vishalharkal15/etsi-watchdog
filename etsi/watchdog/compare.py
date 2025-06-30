@@ -23,10 +23,10 @@ class DriftComparator:
         return deltas
 
     def report(self):
-        print("\n🔍 Drift Comparison Report")
+        print("\n---Drift Comparison Report---")
         for feature in self.diff():
             delta = self.diff()[feature]
             score1 = self.results1[feature].score
             score2 = self.results2[feature].score
-            trend = "⬆️" if delta > 0 else "⬇️"
+            trend = "⬆Up" if delta > 0 else "⬇Down"
             print(f"{feature}: v1={score1:.4f} → v2={score2:.4f} {trend} Δ={delta:+.4f}")

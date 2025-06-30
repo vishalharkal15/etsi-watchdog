@@ -29,7 +29,7 @@ def log_drift_result(psi_scores, drift_status, path: str):
             df.to_csv(path_obj, index=False)
         else:
             df.to_csv(path_obj, mode='a', header=False, index=False)
-        print(f"[watchdog] Logged drift event to {path_obj.resolve()}")
+        print(f"[etsi-watchdog] Logged drift event to {path_obj.resolve()}")
 
     # JSON logging (append style)
     elif path_obj.suffix == ".json":
@@ -45,7 +45,7 @@ def log_drift_result(psi_scores, drift_status, path: str):
 
         existing.append(row)
         path_obj.write_text(json.dumps(existing, indent=2))
-        print(f"[watchdog] Logged drift event to {path_obj.resolve()}")
+        print(f"[etsi-watchdog] Logged drift event to {path_obj.resolve()}")
 
     else:
-        warnings.warn(f"[watchdog] Unsupported log format: {path_obj.suffix}. Use .csv or .json")
+        warnings.warn(f"[etsi-watchdog] Unsupported log format: {path_obj.suffix}. Use .csv or .json")

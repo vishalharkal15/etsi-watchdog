@@ -25,7 +25,7 @@ class DriftCheck:
         results = {}
         for feat in features:
             if feat not in self.reference.columns or feat not in current_df.columns:
-                print(f"[watchdog] ⚠️ Skipping '{feat}' — missing in one of the datasets.")
+                print(f"[etsi-watchdog] Skipping '{feat}' — missing in one of the datasets.")
                 continue
 
             result = self._func(
