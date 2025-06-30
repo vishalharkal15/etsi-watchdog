@@ -1,17 +1,16 @@
 import json
 
 class DriftComparator:
-    def __init__(self, path_v1, path_v2):
-        self.v1 = self._load(path_v1)
-        self.v2 = self._load(path_v2)
+    def compare(self, log1_path, log2_path):
+        with open(log1_path) as f1, open(log2_path) as f2:
+            run1 = json.load(f1)
+            run2 = json.load(f2)
 
-    def _load(self, path):
-        with open(path, "r") as f:
-            return json.load(f)
-
-    def compare(self):
-        report = {}
-        for key in self.v1:
-            diff = self.v2.get(key, 0) - self.v1.get(key, 0)
-            report[key] = {"v1": self.v1.get(key), "v2": self.v2.get(key), "delta": diff}
-        return report
+        print("\n🔍 Drift Comparison Report")
+        for feat in run1:
+            if feat in run2:
+                score1 = run1[feat]["score"]
+                score2 = run2[feat]["score"]
+                delta = score2 - score1
+                trend = "⬆️" if delta > 0 else "⬇️"
+                print(f"{feat}: v1={score1:.3f} → v2={score2:.3f} {trend} Δ={delta:.3f}")
