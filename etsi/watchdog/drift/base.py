@@ -1,39 +1,44 @@
-#base
-import warnings
+import json
 import matplotlib.pyplot as plt
+from dataclasses import dataclass, asdict
 
+
+@dataclass
 class DriftResult:
-    def __init__(self, score: float, is_drifted: bool, details: dict, threshold: float = 0.2):
-        self.drift_score = score
-        self.is_drifted = is_drifted
-        self.details = details
-        self.threshold = threshold
-        self._reference = None
-        self._current = None
+    method: str
+    score: float
+    threshold: float
+    details: dict
+    sample_size: int
+
+    @property
+    def is_drifted(self) -> bool:
+        return self.score > self.threshold
 
     def summary(self) -> str:
-        status = "⚠️ Drift Detected" if self.is_drifted else "✅ No Significant Drift"
-        return f"{status} | Drift Score: {self.drift_score:.4f} (Threshold: {self.threshold})"
+        status = "🚨 Drift Detected!" if self.is_drifted else "✅ No Drift"
+        return f"[{self.method.upper()}] Drift Score: {self.score:.4f} (threshold: {self.threshold}) — {status}"
 
     def plot(self):
-        if self._reference is None or self._current is None:
-            raise ValueError("Distributions not attached. Call `attach_distributions()` first.")
-        import seaborn as sns # type: ignore
-        import pandas as pd
+        if "bins" in self.details and "expected_percents" in self.details:
+            bins = self.details["bins"]
+            expected = self.details["expected_percents"]
+            actual = self.details["actual_percents"]
+            width = 0.35
+            x = range(len(bins))
 
-        fig, axes = plt.subplots(len(self.details), 1, figsize=(7, 4 * len(self.details)))
-        if len(self.details) == 1:
-            axes = [axes]
-        for i, feature in enumerate(self.details.keys()):
-            ref = self._reference[feature]
-            curr = self._current[feature]
-            sns.kdeplot(ref, label="Reference", ax=axes[i])
-            sns.kdeplot(curr, label="Current", ax=axes[i])
-            axes[i].set_title(f"{feature} (Drift: {self.details[feature]:.4f})")
-            axes[i].legend()
-        plt.tight_layout()
-        plt.show()
+            plt.bar(x, expected, width, label='Reference')
+            plt.bar([i + width for i in x], actual, width, label='Current')
+            plt.xticks([i + width / 2 for i in x], bins, rotation=45)
+            plt.ylabel('Percentage')
+            plt.title(f"{self.method.upper()} Distribution")
+            plt.legend()
+            plt.tight_layout()
+            plt.show()
 
-    def attach_distributions(self, reference_df, current_df):
-        self._reference = reference_df
-        self._current = current_df
+    def to_json(self, path=None):
+        data = asdict(self)
+        if path:
+            with open(path, "w") as f:
+                json.dump(data, f, indent=2)
+        return data
