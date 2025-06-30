@@ -71,14 +71,14 @@ def test_comparator():
     print("\n🧪 Running DriftComparator...")
     _, live1 = generate_data()
     _, live2 = generate_data()
+
     # add some improvement
     live2['age'] = live2['age'] - 2
 
     ref, _ = generate_data()
-
     check = DriftCheck(ref)
-    r1 = check.compare(live1, algo="psi")
-    r2 = check.compare(live2, algo="psi")
+    r1 = check.run(live1, algo="psi")
+    r2 = check.run(live2, algo="psi")
 
     comp = DriftComparator(r1, r2)
     diff = comp.diff()
