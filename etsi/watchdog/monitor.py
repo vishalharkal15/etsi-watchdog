@@ -1,19 +1,19 @@
 import time
 import pandas as pd
-from .drift.factory import DriftCheck
-from .logger import get_logger
-
-logger = get_logger("monitor")
+from . import DriftCheck
 
 class Monitor:
-    def __init__(self, interval_sec=60, algo="ks", threshold=0.1):
-        self.interval_sec = interval_sec
-        self.drift_check = DriftCheck(algo=algo, threshold=threshold)
+    def __init__(self, ref_path, get_live_data_fn, features, interval_sec=3600, algo="psi"):
+        self.reference = pd.read_csv(ref_path)
+        self.get_live_data_fn = get_live_data_fn
+        self.features = features
+        self.checker = DriftCheck(algorithm=algo)
+        self.interval = interval_sec
 
-    def run(self, ref_path, live_path):
+    def start(self):
         while True:
-            ref = pd.read_csv(ref_path)
-            live = pd.read_csv(live_path)
-            result = self.drift_check.run(ref, live)
-            logger.info(result)
-            time.sleep(self.interval_sec)
+            current = self.get_live_data_fn()
+            results = self.checker.run(self.reference, current, self.features)
+            for feat, result in results.items():
+                print(result.summary())
+            time.sleep(self.interval)
