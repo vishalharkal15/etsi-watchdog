@@ -1,5 +1,18 @@
-from .drift.factory import DriftCheck
+from .drift.factory import get_drift_function
 from .monitor import Monitor
 from .compare import DriftComparator
+from .drift.base import DriftResult
 
-__all__ = ["DriftCheck", "Monitor", "DriftComparator"]
+class DriftCheck:
+    def __init__(self, algorithm="psi"):
+        self.algorithm = algorithm
+        self._func = get_drift_function(algorithm)
+
+    def run(self, reference_df, current_df, features):
+        results = {}
+        for feat in features:
+            result = self._func(reference_df, current_df, feat)
+            results[feat] = result
+        return results
+
+__all__ = ["DriftCheck", "Monitor", "DriftComparator", "DriftResult"]
