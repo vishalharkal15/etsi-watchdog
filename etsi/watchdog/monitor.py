@@ -1,19 +1,33 @@
-import time
 import pandas as pd
-from . import DriftCheck
+from .logger import log_drift
+from typing import List
 
 class Monitor:
-    def __init__(self, ref_path, get_live_data_fn, features, interval_sec=3600, algo="psi"):
-        self.reference = pd.read_csv(ref_path)
-        self.get_live_data_fn = get_live_data_fn
-        self.features = features
-        self.checker = DriftCheck(algorithm=algo)
-        self.interval = interval_sec
+    def __init__(self, reference):
+        self.reference = reference
+        self.log_path = None
 
-    def start(self):
-        while True:
-            current = self.get_live_data_fn()
-            results = self.checker.run(self.reference, current, self.features)
-            for feat, result in results.items():
-                print(result.summary())
-            time.sleep(self.interval)
+    def enable_logging(self, path: str):
+        self.log_path = path
+
+    def watch(self, live: pd.DataFrame, threshold=0.2, algo="psi"):
+        from .drift.factory import get_drift_function
+        from . import DriftCheck  # 🔁 Lazy import to avoid circular
+
+        checker = DriftCheck(self.reference)
+        result = checker.compare(live, algo=algo, threshold=threshold)
+
+        if self.log_path:
+            log_drift(result, self.log_path)
+        return result
+
+    def watch_rolling(self, live: pd.DataFrame, window=50, freq="D", threshold=0.2, algo="psi"):
+        if not isinstance(live.index, pd.DatetimeIndex):
+            raise ValueError("Live data must have a DatetimeIndex for rolling drift.")
+
+        results = []
+        for date, group in live.groupby(pd.Grouper(freq=freq)):
+            if len(group) >= window:
+                res = self.watch(group.tail(window), threshold=threshold, algo=algo)
+                results.append((date, res))
+        return results

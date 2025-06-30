@@ -1,6 +1,6 @@
 [project]
 name = "etsi-watchdog"
-version = "0.2.0"
+version = "0.2.1"
 description = "Real-time drift detection for ML pipelines using PSI"
 authors = [{name = "Etsi", email = "etsi.hq@gmail.com"}]
 license = {text = "MIT"}
