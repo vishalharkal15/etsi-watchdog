@@ -4,9 +4,10 @@ from .compare import DriftComparator
 from .drift.base import DriftResult
 
 class DriftCheck:
-    def __init__(self, algorithm="psi"):
-        self.algorithm = algorithm
+    def __init__(self, reference, algorithm="psi"):
+        self.reference = reference
         self._func = get_drift_function(algorithm)
+
 
     def run(self, reference_df, current_df, features):
         results = {}
