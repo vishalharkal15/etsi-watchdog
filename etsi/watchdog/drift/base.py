@@ -18,7 +18,7 @@ class DriftResult:
     def plot(self):
         if self._reference is None or self._current is None:
             raise ValueError("Distributions not attached. Call `attach_distributions()` first.")
-        import seaborn as sns
+        import seaborn as sns # type: ignore
         import pandas as pd
 
         fig, axes = plt.subplots(len(self.details), 1, figsize=(7, 4 * len(self.details)))
