@@ -1,38 +1,48 @@
-#psi 
-
 import numpy as np
-import pandas as pd
-from .base import DriftResult
 import warnings
+from .base import DriftResult
 
-def compute_psi(expected: np.ndarray, actual: np.ndarray, bins=10) -> float:
-    """Compute the PSI for a single feature."""
-    try:
-        expected_perc, _ = np.histogram(expected, bins=bins, range=(min(expected), max(expected)), density=True)
-        actual_perc, _ = np.histogram(actual, bins=bins, range=(min(expected), max(expected)), density=True)
+def compute_psi(expected, actual, buckets=10):
+    def scale_range(array):
+        min_val, max_val = np.min(array), np.max(array)
+        return min_val, max_val + 1e-8  # avoid div-by-zero
 
-        expected_perc += 1e-6
-        actual_perc += 1e-6
+    min_val, max_val = scale_range(np.concatenate([expected, actual]))
+    breakpoints = np.linspace(min_val, max_val, buckets + 1)
 
-        psi = np.sum((expected_perc - actual_perc) * np.log(expected_perc / actual_perc))
-        return psi
-    except Exception:
-        return 0.0
+    expected_counts, _ = np.histogram(expected, bins=breakpoints)
+    actual_counts, _ = np.histogram(actual, bins=breakpoints)
 
-def psi_drift(reference: pd.DataFrame, current: pd.DataFrame, threshold: float = 0.2) -> DriftResult:
-    if len(reference) < 50 or len(current) < 50:
-        warnings.warn("PSI may be unreliable on samples < 50 rows", UserWarning)
+    expected_percents = expected_counts / len(expected)
+    actual_percents = actual_counts / len(actual)
 
-    drift_details = {}
-    total_psi = 0.0
-    for column in reference.columns:
-        if pd.api.types.is_numeric_dtype(reference[column]):
-            psi = compute_psi(reference[column], current[column])
-            drift_details[column] = psi
-            total_psi += psi
+    psi_values = []
+    for e, a in zip(expected_percents, actual_percents):
+        if e == 0 or a == 0:
+            psi_values.append(0)
+        else:
+            psi_values.append((e - a) * np.log(e / a))
 
-    avg_psi = total_psi / len(drift_details) if drift_details else 0.0
-    is_drifted = avg_psi > threshold
-    result = DriftResult(score=avg_psi, is_drifted=is_drifted, details=drift_details, threshold=threshold)
-    result.attach_distributions(reference, current)
-    return result
+    psi_score = np.sum(psi_values)
+
+    return DriftResult(
+        method="psi",
+        score=psi_score,
+        threshold=0.2,
+        sample_size=len(actual),
+        details={
+            "bins": [f"{breakpoints[i]:.2f}-{breakpoints[i+1]:.2f}" for i in range(buckets)],
+            "expected_percents": expected_percents.tolist(),
+            "actual_percents": actual_percents.tolist(),
+            "psi_per_bin": psi_values
+        }
+    )
+
+def psi_drift(reference, current, feature):
+    ref = reference[feature].dropna().values
+    cur = current[feature].dropna().values
+
+    if len(cur) < 50:
+        warnings.warn(f"[watchdog] ⚠️ Sample size too small for reliable PSI (<50): {len(cur)}", stacklevel=2)
+
+    return compute_psi(ref, cur)
