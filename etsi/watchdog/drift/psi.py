@@ -2,7 +2,8 @@ import numpy as np
 import warnings
 from .base import DriftResult
 
-def compute_psi(expected, actual, buckets=10):
+
+def compute_psi(expected, actual, threshold=0.2, buckets=10) -> DriftResult:
     def scale_range(array):
         min_val, max_val = np.min(array), np.max(array)
         return min_val, max_val + 1e-8  # avoid div-by-zero
@@ -28,7 +29,7 @@ def compute_psi(expected, actual, buckets=10):
     return DriftResult(
         method="psi",
         score=psi_score,
-        threshold=0.2,
+        threshold=threshold,
         sample_size=len(actual),
         details={
             "bins": [f"{breakpoints[i]:.2f}-{breakpoints[i+1]:.2f}" for i in range(buckets)],
@@ -38,11 +39,15 @@ def compute_psi(expected, actual, buckets=10):
         }
     )
 
-def psi_drift(reference, current, feature):
-    ref = reference[feature].dropna().values
-    cur = current[feature].dropna().values
+
+def psi_drift(reference_df, current_df, feature: str, threshold: float = 0.2) -> DriftResult:
+    ref = reference_df[feature].dropna().values
+    cur = current_df[feature].dropna().values
 
     if len(cur) < 50:
-        warnings.warn(f"[watchdog] ⚠️ Sample size too small for reliable PSI (<50): {len(cur)}", stacklevel=2)
+        warnings.warn(
+            f"[watchdog] ⚠️ Sample size for feature '{feature}' is small (<50): {len(cur)}",
+            stacklevel=2
+        )
 
-    return compute_psi(ref, cur)
+    return compute_psi(ref, cur, threshold=threshold)
