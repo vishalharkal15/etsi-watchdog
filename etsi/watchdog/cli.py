@@ -1,48 +1,30 @@
 import argparse
 import pandas as pd
-from .drift.factory import DriftCheck
-from .monitor import Monitor
-from .compare import DriftComparator
-from .logger import get_logger
-
-logger = get_logger("cli")
+from . import DriftCheck
 
 def main():
-    parser = argparse.ArgumentParser(description="Watchdog Drift Detection CLI")
-    subparsers = parser.add_subparsers(dest="command")
-
-    drift_cmd = subparsers.add_parser("drift")
-    drift_cmd.add_argument("--ref", required=True)
-    drift_cmd.add_argument("--live", required=True)
-    drift_cmd.add_argument("--algo", default="ks")
-    drift_cmd.add_argument("--threshold", type=float, default=0.1)
-
-    monitor_cmd = subparsers.add_parser("monitor")
-    monitor_cmd.add_argument("--ref", required=True)
-    monitor_cmd.add_argument("--live", required=True)
-    monitor_cmd.add_argument("--interval", type=int, default=60)
-    monitor_cmd.add_argument("--algo", default="ks")
-
-    compare_cmd = subparsers.add_parser("compare")
-    compare_cmd.add_argument("--v1", required=True)
-    compare_cmd.add_argument("--v2", required=True)
+    parser = argparse.ArgumentParser(description="Watchdog Drift Checker")
+    parser.add_argument("--ref", type=str, required=True, help="Reference dataset CSV")
+    parser.add_argument("--cur", type=str, required=True, help="Current dataset CSV")
+    parser.add_argument("--features", nargs="+", required=True, help="Feature columns to monitor")
+    parser.add_argument("--algo", type=str, default="psi", help="Drift algorithm: psi or ks")
+    parser.add_argument("--plot", action="store_true", help="Plot the drift")
+    parser.add_argument("--out", type=str, help="Output JSON path")
 
     args = parser.parse_args()
 
-    if args.command == "drift":
-        ref = pd.read_csv(args.ref)
-        live = pd.read_csv(args.live)
-        checker = DriftCheck(algo=args.algo, threshold=args.threshold)
-        result = checker.run(ref, live)
-        print(result)
+    ref = pd.read_csv(args.ref)
+    cur = pd.read_csv(args.cur)
 
-    elif args.command == "monitor":
-        mon = Monitor(interval_sec=args.interval, algo=args.algo)
-        mon.run(args.ref, args.live)
+    checker = DriftCheck(algorithm=args.algo)
+    results = checker.run(ref, cur, args.features)
 
-    elif args.command == "compare":
-        comp = DriftComparator(args.v1, args.v2)
-        print(comp.compare())
+    for feat, result in results.items():
+        print(result.summary())
+        if args.plot:
+            result.plot()
+        if args.out:
+            result.to_json(args.out)
 
 if __name__ == "__main__":
     main()
