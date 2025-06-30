@@ -1,30 +1,32 @@
+# etsi/watchdog/cli.py
+
 import argparse
 import pandas as pd
 from . import DriftCheck
 
-def main():
-    parser = argparse.ArgumentParser(description="Watchdog Drift Checker")
-    parser.add_argument("--ref", type=str, required=True, help="Reference dataset CSV")
-    parser.add_argument("--cur", type=str, required=True, help="Current dataset CSV")
-    parser.add_argument("--features", nargs="+", required=True, help="Feature columns to monitor")
-    parser.add_argument("--algo", type=str, default="psi", help="Drift algorithm: psi or ks")
-    parser.add_argument("--plot", action="store_true", help="Plot the drift")
-    parser.add_argument("--out", type=str, help="Output JSON path")
+
+def run_cli():
+    parser = argparse.ArgumentParser(description="ETSI Drift Watchdog CLI")
+    parser.add_argument("--ref", required=True, help="Path to reference CSV file")
+    parser.add_argument("--live", required=True, help="Path to live CSV file")
+    parser.add_argument("--features", nargs="+", help="List of features to check")
+    parser.add_argument("--algo", default="psi", help="Drift algorithm (default: psi)")
+    parser.add_argument("--threshold", type=float, default=0.2, help="Drift threshold (default: 0.2)")
+    parser.add_argument("--out", help="Output JSON file")
 
     args = parser.parse_args()
 
-    ref = pd.read_csv(args.ref)
-    cur = pd.read_csv(args.cur)
+    ref_df = pd.read_csv(args.ref)
+    live_df = pd.read_csv(args.live)
 
-    checker = DriftCheck(algorithm=args.algo)
-    results = checker.run(ref, cur, args.features)
+    checker = DriftCheck(ref_df, algorithm=args.algo, threshold=args.threshold)
+    results = checker.run(live_df, features=args.features or list(ref_df.columns))
 
-    for feat, result in results.items():
-        print(result.summary())
-        if args.plot:
-            result.plot()
+    for feat, res in results.items():
+        print(f"\n{feat} ➤ {res.summary()}")
         if args.out:
-            result.to_json(args.out)
+            res.to_json(f"{args.out}_{feat}.json")
+
 
 if __name__ == "__main__":
-    main()
+    run_cli()
