@@ -5,7 +5,21 @@
 
 **Real-time data drift detection for machine learning pipelines.**
 
-`etsi-watchdog` is a lightweight, plug-and-play Python package for detecting distribution shifts between training and production data. It helps ensure the stability of machine learning models in real-world environments with changing data.
+`etsi-watchdog` is a production-ready Python library for drift detection, version comparison, and real-time monitoring of data streams. Designed for ML practitioners, data scientists, and AI engineers who need reliable data quality insights.
+
+
+## Features
+- PSI-based Drift Detection (more algorithms coming)
+
+- Rolling Monitoring with time-frequency windowing
+
+- Version Drift Comparison between model/data snapshots
+
+- Built-in Visualization & JSON Export
+
+- Minimal Dependencies & Fast Performance
+
+- Clear API, suitable for both research and production
 
 ---
 
@@ -17,121 +31,58 @@ pip install etsi-watchdog
 
 ---
 
-## What It Does
+## Quickstart
 
-- Detects data drift using Population Stability Index (PSI)
 
-- Works with both numeric and categorical features
-
-- Supports rolling drift detection on time-based data
-
-- Allows custom actions to be triggered on drift (e.g., alerts, retraining)
-
-- Logs PSI and drift status to CSV for auditing
-
-- Tracks top drifting features for prioritization
-
----
-
-## What's New in v0.2.0
-
+###  Drift Detection
 ```bash
-Full Changelog: [v0.1.1 → v0.2.0]
-```
-
-### Major Additions
-✅ Rolling Drift Detection
-
- - Analyze PSI across time windows
-
-✅ Top Drifting Features
-
- - Identify most impacted features with .top_features()
-
-✅ CSV Logging
-
- - Logs all drift events and PSI scores
-
---- 
-
-## Quick Example
-
-```bash
-
+from etsi.watchdog import DriftCheck
 import pandas as pd
-from etsi.watchdog import DriftMonitor
 
-# Reference dataset
-ref = pd.DataFrame({
-    "feature1": [1, 2, 3, 4, 5],
-    "feature2": [100, 102, 101, 98, 99],
-    "category": ["A", "B", "A", "C", "B"]
-})
+ref = pd.read_csv("reference.csv")
+live = pd.read_csv("current.csv")
 
-# Simulated live data with drift
-live = pd.DataFrame({
-    "feature1": [20, 21, 22, 23, 24],
-    "feature2": [180, 181, 182, 183, 184],
-    "category": ["Z", "Z", "Z", "Z", "Z"]
-})
+check = DriftCheck(ref)
+results = check.run(live, features=["age", "salary"])
 
-monitor = DriftMonitor(reference=ref)
-monitor.enable_logging("logs/drift_log.csv")
-
-result = monitor.watch(live)
-print("Latest PSI:", result.psi)
-print("Top features:", result.top_features(2))
-
-result.on_drift(lambda: print("Drift detected"))
-
+for feat, result in results.items():
+    print(result.summary())
+    result.plot()
 
 ```
 
-#### Sample Output
-
+### Rolling Monitoring
 ```bash
 
-[watchdog] logs/ directory not found.
-[watchdog] logs created at /project/logs
+from etsi.watchdog import Monitor
 
-Latest PSI: {'category': 25.5211, 'feature2': 27.631, 'feature1': 25.903}
-Top features: [('feature2', 27.631), ('feature1', 25.903)]
-Drift detected.
+monitor = Monitor(reference_df=ref)
+monitor.enable_logging("logs/rolling_log.csv")
+
+results = monitor.watch_rolling(
+    df=live_data_stream,
+    window=50,
+    freq="D",
+    features=["age", "salary"]
+)
 
 ```
 
 
-#### Sample drift_log.csv Output
-
+### Drift Comparison (A/B)
 ```bash
+from etsi.watchdog import DriftComparator
 
-timestamp,drift,category,feature2,feature1
-2025-06-27T22:30:29.645231,True,25.5211,27.631,25.903
+check = DriftCheck(ref)
+v1 = check.run(live1, features=["age", "salary"])
+v2 = check.run(live2, features=["age", "salary"])
 
-```
-
----
-
-## Rolling Drift Detection (Time Series)
-
-```bash
-
-rolling = monitor.watch_rolling(live_with_dates, window=5, freq="D")
-for date, res in rolling:
-    print(date, res.drift, res.top_features())
+comp = DriftComparator(v1, v2)
+print(comp.diff())
 
 ```
 
----
 
-## Coming Soon in v0.2.1
-
- - Streamlit Dashboard
- - Drift Trend Plots
- - Snapshot Archiving
-
-
----
 
 ## Contributing
 
