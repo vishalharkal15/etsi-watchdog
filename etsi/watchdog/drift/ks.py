@@ -1,15 +1,16 @@
-#ks
-import numpy as np
 from scipy.stats import ks_2samp
 from .base import DriftResult
 
-def ks_drift(ref, live, threshold=0.1):
-    score = 0.0
-    details = {}
+def ks_drift(reference, current, feature):
+    ref = reference[feature].dropna().values
+    cur = current[feature].dropna().values
 
-    for col in ref.columns:
-        stat, _ = ks_2samp(ref[col], live[col])
-        details[col] = stat
-        score = max(score, stat)
+    stat, p_value = ks_2samp(ref, cur)
 
-    return DriftResult(score=score, threshold=threshold, is_drifted=score > threshold, details=details)
+    return DriftResult(
+        method="ks",
+        score=1 - p_value,
+        threshold=0.2,
+        sample_size=len(cur),
+        details={"ks_stat": stat, "p_value": p_value}
+    )
