@@ -12,6 +12,7 @@ from .drift.factory import get_drift_function
 from .monitor import Monitor
 from .compare import DriftComparator
 from .drift.base import DriftResult
+import warnings
 
 
 class DriftCheck:
@@ -43,6 +44,14 @@ class DriftCheck:
             )
             results[feat] = result
         return results
+
+    def compare(self, *args, **kwargs):
+        warnings.warn(
+            "[watchdog] DriftCheck.compare() is deprecated, use .run(current_df, features) instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.run(*args, **kwargs)
 
 
 __all__ = ["DriftCheck", "Monitor", "DriftComparator", "DriftResult"]

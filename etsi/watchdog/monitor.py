@@ -14,8 +14,9 @@ class Monitor:
         from .drift.factory import get_drift_function
         from . import DriftCheck  # 🔁 Lazy import to avoid circular
 
-        checker = DriftCheck(self.reference)
-        result = checker.compare(live, algo=algo, threshold=threshold)
+        checker = DriftCheck(self.reference, algorithm=algo, threshold=threshold)
+        result = checker.run(live, features=self.reference.columns)
+
 
         if self.log_path:
             log_drift(result, self.log_path)
