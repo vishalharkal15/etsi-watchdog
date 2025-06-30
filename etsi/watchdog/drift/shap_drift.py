@@ -1,5 +1,5 @@
-#sharp drift
 from .base import DriftResult
 
-def shap_drift(*args, **kwargs):
-    raise NotImplementedError("SHAP-based drift detection coming in v0.4.")
+
+def shap_drift(*args, **kwargs) -> DriftResult:
+    raise NotImplementedError("[watchdog] ❗ SHAP-based drift detection is coming in v0.4. Stay tuned!")
