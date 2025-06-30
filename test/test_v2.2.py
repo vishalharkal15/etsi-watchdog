@@ -67,26 +67,18 @@ def test_monitor():
 
 
 # ----------- ✅ 3. Drift Comparator (between versions) -----------
-def test_comparator():
-    print("\n🧪 Running DriftComparator...")
-    _, live1 = generate_data()
-    _, live2 = generate_data()
+def test_drift_check():
+    print("\n🧪 Running DriftCheck...")
+    ref, live = generate_data()
 
-    # add some improvement
-    live2['age'] = live2['age'] - 2
-
-    ref, _ = generate_data()
     check = DriftCheck(ref)
-    r1 = check.run(live1, algo="psi")
-    r2 = check.run(live2, algo="psi")
+    results = check.run(live, features=["age", "salary", "gender"])
 
-    comp = DriftComparator(r1, r2)
-    diff = comp.diff()
-
-    print("[✓] DriftComparator passed.")
-    print("Δ PSI between v1 and v2:")
-    for k, v in diff.items():
-        print(f"{k}: {v:+.4f}")
+    for feat, result in results.items():
+        print(f"[✓] DriftCheck ({feat}) passed.")
+        print(result.summary())
+        result.plot()  # Optional
+        result.to_json(f"logs/drift_{feat}.json")
 
 
 # ----------- ✅ Run All Tests -----------
