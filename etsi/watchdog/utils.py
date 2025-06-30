@@ -1,9 +1,17 @@
 import pandas as pd
 from datetime import datetime
-import os
+from pathlib import Path
+import json
+import warnings
 
+def log_drift_result(psi_scores, drift_status, path: str):
+    """
+    Appends drift results (timestamp + PSI scores) to a CSV or JSON log file.
+    """
+    # Type safety
+    if not isinstance(psi_scores, dict):
+        raise TypeError("psi_scores must be a dict")
 
-def log_drift_result(psi_scores, drift_status, path):
     timestamp = datetime.now().isoformat()
     row = {
         "timestamp": timestamp,
@@ -11,15 +19,33 @@ def log_drift_result(psi_scores, drift_status, path):
         **psi_scores
     }
 
-    df = pd.DataFrame([row])
-    log_dir = os.path.dirname(path)
+    path_obj = Path(path)
+    path_obj.parent.mkdir(parents=True, exist_ok=True)
 
-    if not os.path.exists(log_dir):
-        print(f"[watchdog] logs/ directory not found.")
-        os.makedirs(log_dir)
-        print(f"[watchdog] logs created at {os.path.abspath(log_dir)}")
+    # CSV logging
+    if path_obj.suffix == ".csv":
+        df = pd.DataFrame([row])
+        if not path_obj.exists():
+            df.to_csv(path_obj, index=False)
+        else:
+            df.to_csv(path_obj, mode='a', header=False, index=False)
+        print(f"[watchdog] Logged drift event to {path_obj.resolve()}")
 
-    if not os.path.exists(path):
-        df.to_csv(path, index=False)
+    # JSON logging (append style)
+    elif path_obj.suffix == ".json":
+        if path_obj.exists():
+            try:
+                existing = json.loads(path_obj.read_text())
+                if not isinstance(existing, list):
+                    existing = []
+            except json.JSONDecodeError:
+                existing = []
+        else:
+            existing = []
+
+        existing.append(row)
+        path_obj.write_text(json.dumps(existing, indent=2))
+        print(f"[watchdog] Logged drift event to {path_obj.resolve()}")
+
     else:
-        df.to_csv(path, mode='a', header=False, index=False)
+        warnings.warn(f"[watchdog] Unsupported log format: {path_obj.suffix}. Use .csv or .json")
