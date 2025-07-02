@@ -12,7 +12,7 @@
 - PSI-based Drift Detection (more algorithms coming)
 
 - Rolling Monitoring with time-frequency windowing
-
+    
 - Version Drift Comparison between model/data snapshots
 
 - Built-in Visualization & JSON Export

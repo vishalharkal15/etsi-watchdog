@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>etsi-watchdog Documentation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <h1>etsi</h1>
+    <ul>
+      <li><a href="etsi-watchdog.html" class="active">etsi-watchdog</a></li>
+      <li><a href="etsi-failprint.html">etsi-failprint</a></li>
+      <li><a href="etsi-etna.html">etsi-etna</a></li>
+    </ul>
+  </nav>
+  <main>
+    <h2>etsi-watchdog</h2>
+    <p><strong>etsi-watchdog</strong> is a lightweight Python library for detecting tabular data drift using statistical tests like PSI. It's modular, production-ready, and ideal for ML validation pipelines and scheduled monitoring tasks.</p>
+    <br>
+    <h3>Installation</h3>
+    <pre><code>pip install etsi-watchdog</code></pre>
+
+    <h3>Core Components</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>DriftCheck</code></td>
+          <td>Compare reference vs. current dataset using PSI or other drift algorithms.</td>
+        </tr>
+        <tr>
+          <td><code>Monitor</code></td>
+          <td>Rolling monitoring system to detect drift over time with logging support.</td>
+        </tr>
+        <tr>
+          <td><code>DriftComparator</code></td>
+          <td>Compares drift results between two different data/model versions.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>DriftCheck API</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>check.run(current_df, features)</code></td>
+          <td>Runs drift detection on a list of features from <code>current_df</code> vs the reference.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Monitor API</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>monitor.enable_logging(path)</code></td>
+          <td>Enable CSV-based logging of drift results to the specified path.</td>
+        </tr>
+        <tr>
+          <td><code>monitor.watch_rolling(df, window, freq, features)</code></td>
+          <td>Monitors drift over a time-indexed DataFrame. Aggregates and checks drift for each period.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>DriftResult API</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Attribute / Method</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.is_drifted</code></td>
+          <td>Returns <code>True</code> if the score exceeds threshold.</td>
+        </tr>
+        <tr>
+          <td><code>.summary()</code></td>
+          <td>Prints a short summary like “Drift Detected” with score and method name.</td>
+        </tr>
+        <tr>
+          <td><code>.plot()</code></td>
+          <td>Renders a histogram plot of PSI or other scores (requires matplotlib).</td>
+        </tr>
+        <tr>
+          <td><code>.to_json(path)</code></td>
+          <td>Saves result as a structured JSON file. If no path is passed, returns a dict.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Example: One-time Check</h3>
+    <pre><code>from etsi.watchdog import DriftCheck
+
+check = DriftCheck(reference_df)
+results = check.run(current_df, features=["age", "salary"])
+
+for feature, result in results.items():
+    print(result.summary())
+    result.plot()
+    result.to_json(f"logs/drift_{feature}.json")
+</code></pre>
+
+    <h3>Example: Scheduled Monitoring</h3>
+    <pre><code>from etsi.watchdog import Monitor
+
+monitor = Monitor(reference_df)
+monitor.enable_logging("logs/rolling_log.csv")
+
+monitor.watch_rolling(
+    df=live_df,
+    window=50,
+    freq="D",
+    features=["age", "salary"]
+)
+</code></pre>
+
+    <h3>Example: Version Comparison</h3>
+    <pre><code>from etsi.watchdog import DriftComparator
+
+comp = DriftComparator(run1_results, run2_results)
+diff = comp.diff()
+
+for feature, delta in diff.items():
+    print(f"{feature}: Δ PSI = {delta:+.4f}")
+</code></pre>
+
+    <h3>Resources</h3>
+    <div class="resource-links">
+    <a class="resource-link" href="https://pypi.org/project/etsi-watchdog/" target="_blank">PyPI Release</a>
+    <a class="resource-link" href="" target="_blank">Google Colab Demo</a>
+    <a class="resource-link" href="https://github.com/etsi-ai/etsi-watchdog" target="_blank">GitHub Repository</a>
+    </div>
+
+  </main>
+</body>
+</html>
