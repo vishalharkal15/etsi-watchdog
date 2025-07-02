@@ -36,7 +36,7 @@ This Code of Conduct applies within all community spaces, including when an indi
 
 ## Reporting Violations
 
-Instances of abusive, harassing, or otherwise unacceptable behavior should be reported to the community leaders at [your-email@example.com]. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior should be reported to the community leaders at [etsi.hq@gmail.com]. All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders will respect the privacy and security of reporters.
 
