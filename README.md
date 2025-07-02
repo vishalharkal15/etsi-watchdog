@@ -82,6 +82,23 @@ print(comp.diff())
 
 ```
 
+---
+
+##  etsi-watchdog v3 — Roadmap & Vision
+
+| Feature Area | Description |
+|--------------|-------------|
+|  **Multi-Algorithm Support** | Support for additional drift metrics:<br>- Jensen–Shannon Divergence (JSD)<br>- Wasserstein Distance<br>- Kolmogorov–Smirnov Test (K-S)<br>- Tree-based drift (e.g., `DeepDrift`) |
+|  **Plug-in Architecture** | Drift algorithms will be fully plug-and-play. Custom metric support via `register_drift_function()` API. |
+|  **Real-Time Stream Hooks** | Support for Kafka/Redis/WebSockets to detect drift on live data streams. |
+|  **Concept Drift Detection** | Integration with models to detect label or concept drift, not just feature distribution shift. |
+|  **CLI & YAML Configs** | Full CLI support:<br>`etsi-watchdog detect --ref ref.csv --live live.csv --features age salary`<br>+ YAML-based configuration for automated pipelines. |
+|  **Benchmark Suite** | Built-in benchmarking with synthetic datasets to evaluate metric sensitivity and response time. |
+|  **Dashboard UI (Optional)** | Lightweight dashboard (Streamlit/FastAPI) for monitoring drift over time visually. |
+|  **Drift Summary Reports** | Generate PDF/HTML reports with drift summary, top features, histograms, and timestamps. |
+|  **Sklearn & Pandas Integration** | `DriftCheck` will support `.fit()`/`.transform()` methods like Scikit-learn transformers. |
+
+---
 
 
 ## Contributing
