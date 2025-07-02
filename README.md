@@ -101,9 +101,11 @@ print(comp.diff())
 ---
 
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome. If you have an idea for a drift metric, integration, or improvement, please open an issue or PR on GitHub.
+Please refer to [CONTRIBUTING.md](https://github.com/etsi-ai/etsi-watchdog/blob/main/CONTRIBUTING.md) for contribution guidelines and ensure
+
 
 
 
