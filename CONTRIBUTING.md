@@ -1,6 +1,6 @@
-# Contributing to ETNA
+# Contributing to Watchdog
 
-We welcome contributions to make ETNA better! Before you start, please take a moment to review the guidelines below.
+We welcome contributions to make Watchdog better! Before you start, please take a moment to review the guidelines below.
 
 ## Steps to Contribute
 
