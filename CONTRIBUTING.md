@@ -39,7 +39,7 @@ If you find any issues, please open an issue on the repository so that we can ad
 
 ## Thank You!
 
-Thank you for your interest in contributing to ETNA! We appreciate your effort to make this project better.
+Thank you for your interest in contributing to Watchdog! We appreciate your effort to make this project better.
 
 ---
 
