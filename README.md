@@ -2,6 +2,8 @@
 
 [![PyPI](https://img.shields.io/pypi/v/etsi-watchdog.svg)](https://pypi.org/project/etsi-watchdog/)
 [![PyPI Downloads](https://static.pepy.tech/badge/etsi-watchdog)](https://pepy.tech/projects/etsi-watchdog)
+[![Docs](https://etsi-ai.github.io/docs/etsi-watchdog.html)
+
 
 **Real-time data drift detection for machine learning pipelines.**
 
