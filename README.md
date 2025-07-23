@@ -115,8 +115,6 @@ See the [LICENSE](./LICENSE) file for details.
 
 ## 👨‍💻 Maintainers
 
-- [@PRIYANSHU2026](https://github.com/PRIYANSHU2026)
-- [@7ravi8](https://github.com/7ravi8)
-
+- [@PRIYANSH](https://github.com/PriyanshSrivastava0305)
 ---
 
