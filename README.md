@@ -1,116 +1,150 @@
-# etsi-watchdog
+# etsi-watchdog 🐶
 
-[![PyPI](https://img.shields.io/pypi/v/etsi-watchdog.svg)](https://pypi.org/project/etsi-watchdog/)
-[![PyPI Downloads](https://static.pepy.tech/badge/etsi-watchdog)](https://pepy.tech/projects/etsi-watchdog)
-
-
-[DOCS](https://etsi-ai.github.io/docs/etsi-watchdog.html)
-
-
-**Real-time data drift detection for machine learning pipelines.**
-
-`etsi-watchdog` is a production-ready Python library for drift detection, version comparison, and real-time monitoring of data streams. Designed for ML practitioners, data scientists, and AI engineers who need reliable data quality insights.
-
-
-## Features
-- PSI-based Drift Detection (more algorithms coming)
-
-- Rolling Monitoring with time-frequency windowing
-    
-- Version Drift Comparison between model/data snapshots
-
-- Built-in Visualization & JSON Export
-
-- Minimal Dependencies & Fast Performance
-
-- Clear API, suitable for both research and production
+**A versatile tool for detecting dataset drift and monitoring data consistency in your ML pipelines.**
 
 ---
 
-## Installation
+## 📌 What is etsi-watchdog?
+
+**etsi-watchdog** is a data drift detection toolkit that helps ML practitioners and data engineers monitor whether their datasets have changed over time in ways that may impact model performance.
+
+It supports **static drift checks**, **rolling window monitoring**, and **version comparison**, making it suitable for both real-time systems and batch workflows.
+
+---
+
+## 🚀 Why use etsi-watchdog?
+
+- ✅ Detect when incoming data diverges from training data
+- 📉 Prevent silent ML model degradation
+- 🔁 Monitor data pipelines in production
+- 🔍 Compare different dataset versions before deployment
+
+---
+
+## 🧠 High-Level Architecture
+
+The tool revolves around three main components:
+
+### 1. **DriftCheck** – Static drift detection
+Compares two static datasets and reports statistical differences.
+
+**Workflow:**
+- Input: `reference_dataset.csv`, `current_dataset.csv`
+- Calculates drift using metrics like KS-test, JS divergence
+- Outputs a detailed report of drift per feature
+
+---
+
+### 2. **Monitor** – Rolling window detection
+Continuously monitors incoming data and checks for drift against a reference.
+
+**Workflow:**
+- Maintains a rolling window of recent data
+- Compares each new window to a reference
+- Can be scheduled or integrated into real-time systems
+
+---
+
+### 3. **DriftComparator** – Version comparison
+Compares two dataset versions (e.g., `v1 vs v2`) to assess changes before production pushes.
+
+**Workflow:**
+- Input: `version_1.csv`, `version_2.csv`
+- Highlights changed distributions, added/removed features, and metrics
+
+---
+
+## 📦 Installation
 
 ```bash
 pip install etsi-watchdog
 ```
 
----
+Or install from source:
 
-## Quickstart
-
-
-###  Drift Detection
 ```bash
-from etsi.watchdog import DriftCheck
-import pandas as pd
-
-ref = pd.read_csv("reference.csv")
-live = pd.read_csv("current.csv")
-
-check = DriftCheck(ref)
-results = check.run(live, features=["age", "salary"])
-
-for feat, result in results.items():
-    print(result.summary())
-    result.plot()
-
-```
-
-### Rolling Monitoring
-```bash
-
-from etsi.watchdog import Monitor
-
-monitor = Monitor(reference_df=ref)
-monitor.enable_logging("logs/rolling_log.csv")
-
-results = monitor.watch_rolling(
-    df=live_data_stream,
-    window=50,
-    freq="D",
-    features=["age", "salary"]
-)
-
-```
-
-
-### Drift Comparison (A/B)
-```bash
-from etsi.watchdog import DriftComparator
-
-check = DriftCheck(ref)
-v1 = check.run(live1, features=["age", "salary"])
-v2 = check.run(live2, features=["age", "salary"])
-
-comp = DriftComparator(v1, v2)
-print(comp.diff())
-
+git clone https://github.com/<org>/etsi-watchdog.git
+cd etsi-watchdog
+pip install -e .
 ```
 
 ---
 
-##  etsi-watchdog v3 — Roadmap & Vision
+## 📘 Usage
 
-| Feature Area | Description |
-|--------------|-------------|
-|  **Multi-Algorithm Support** | Support for additional drift metrics:<br>- Jensen–Shannon Divergence (JSD)<br>- Wasserstein Distance<br>- Kolmogorov–Smirnov Test (K-S)<br>- Tree-based drift (e.g., `DeepDrift`) |
-|  **Plug-in Architecture** | Drift algorithms will be fully plug-and-play. Custom metric support via `register_drift_function()` API. |
-|  **Real-Time Stream Hooks** | Support for Kafka/Redis/WebSockets to detect drift on live data streams. |
-|  **Concept Drift Detection** | Integration with models to detect label or concept drift, not just feature distribution shift. |
-|  **CLI & YAML Configs** | Full CLI support:<br>`etsi-watchdog detect --ref ref.csv --live live.csv --features age salary`<br>+ YAML-based configuration for automated pipelines. |
-|  **Benchmark Suite** | Built-in benchmarking with synthetic datasets to evaluate metric sensitivity and response time. |
-|  **Dashboard UI (Optional)** | Lightweight dashboard (Streamlit/FastAPI) for monitoring drift over time visually. |
-|  **Drift Summary Reports** | Generate PDF/HTML reports with drift summary, top features, histograms, and timestamps. |
-|  **Sklearn & Pandas Integration** | `DriftCheck` will support `.fit()`/`.transform()` methods like Scikit-learn transformers. |
+### Static Drift Check
 
+```python
+from etsi_watchdog import DriftCheck
+
+dc = DriftCheck(reference="data/train.csv", current="data/test.csv")
+report = dc.run()
+report.save("drift_report.html")
+```
+
+### Monitoring
+
+```python
+from etsi_watchdog import Monitor
+
+monitor = Monitor(reference="data/baseline.csv", window_size=100)
+monitor.feed(new_data_batch)
+```
+
+### Version Comparison
+
+```python
+from etsi_watchdog import DriftComparator
+
+comparator = DriftComparator("data/v1.csv", "data/v2.csv")
+comparator.compare().save("version_diff_report.html")
+```
 ---
 
+## 📁 Project Structure
+
+```
+.
+├── CODE_OF_CONDUCT.md       # Community guidelines
+├── CONTRIBUTING.md          # Contribution rules
+├── LICENSE                  # Project license
+├── PYPIREADME.md            # PyPI-specific README
+├── README.md                # Main project documentation
+├── pyproject.toml           # Build and dependency configuration
+├── etsi/                    # Source package
+│   └── watchdog/            # Core Watchdog module
+├── test/                    # Test suite
+│   ├── test_watchdog.py
+│   ├── test_v2.py
+│   └── test_v2.2.py
+├── etsi-etna.html           # Sample output HTML files
+├── etsi-failprint.html
+└── etsi-watchdog.html
+```
+
+## 📄 Documentation
+
+Full documentation is available [here](https://github.com/etsi-ai/etsi-watchdog)
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome. If you have an idea for a drift metric, integration, or improvement, please open an issue or PR on GitHub.
-Please refer to [CONTRIBUTING.md](https://github.com/etsi-ai/etsi-watchdog/blob/main/CONTRIBUTING.md) for contribution guidelines and ensure
+We welcome contributions! Please:
 
+- Check for open [issues](https://github.com/<org>/etsi-watchdog/issues)
+- Create a new branch (`feature/your-feature`)
+- Open a PR with clear description
 
+If you're unsure where to start, comment on an issue, and a maintainer will help guide you.
 
+---
 
+## 📬 Contact
 
+- Maintainer: [@maintainer_github](https://github.com/PriyanshSrivastava0305)
+---
+
+## 📝 License
+
+MIT License. See `LICENSE` for more info.
