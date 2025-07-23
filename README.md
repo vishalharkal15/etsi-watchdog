@@ -99,36 +99,32 @@ from etsi_watchdog import DriftComparator
 comparator = DriftComparator("data/v1.csv", "data/v2.csv")
 comparator.compare().save("version_diff_report.html")
 ```
-
 ---
 
-## 📊 Example Output
+## 📁 Project Structure
 
-<p align="center">
-  <img src="assets/drift_report_sample.png" width="700"/>
-</p>
-
----
-
-## 📂 Project Structure
-
-```text
-etsi_watchdog/
-├── drift/
-│   ├── drift_check.py
-│   ├── monitor.py
-│   └── comparator.py
-├── utils/
-├── tests/
-├── README.md
-└── setup.py
 ```
-
----
+.
+├── CODE_OF_CONDUCT.md       # Community guidelines
+├── CONTRIBUTING.md          # Contribution rules
+├── LICENSE                  # Project license
+├── PYPIREADME.md            # PyPI-specific README
+├── README.md                # Main project documentation
+├── pyproject.toml           # Build and dependency configuration
+├── etsi/                    # Source package
+│   └── watchdog/            # Core Watchdog module
+├── test/                    # Test suite
+│   ├── test_watchdog.py
+│   ├── test_v2.py
+│   └── test_v2.2.py
+├── etsi-etna.html           # Sample output HTML files
+├── etsi-failprint.html
+└── etsi-watchdog.html
+```
 
 ## 📄 Documentation
 
-Full documentation is available [here](https://your-docs-link.com)
+Full documentation is available [here](https://github.com/etsi-ai/etsi-watchdog)
 
 ---
 
@@ -146,9 +142,7 @@ If you're unsure where to start, comment on an issue, and a maintainer will help
 
 ## 📬 Contact
 
-- Maintainer: [@maintainer_github](https://github.com/maintainer_github)
-- LinkedIn: [Mentor LinkedIn](https://linkedin.com/in/mentor-profile)
-
+- Maintainer: [@maintainer_github](https://github.com/PriyanshSrivastava0305)
 ---
 
 ## 📝 License
