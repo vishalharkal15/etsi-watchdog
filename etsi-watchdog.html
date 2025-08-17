@@ -78,6 +78,14 @@
           <td><code>monitor.watch_rolling(df, window, freq, features)</code></td>
           <td>Monitors drift over a time-indexed DataFrame. Aggregates and checks drift for each period.</td>
         </tr>
+        <tr>
+          <td><code>monitor.recap(rolling_results)</code></td>
+          <td>Generate comprehensive summary statistics from rolling monitoring results.</td>
+        </tr>
+        <tr>
+          <td><code>monitor.print_recap(rolling_results)</code></td>
+          <td>Print formatted recap summary of rolling monitoring results to console.</td>
+        </tr>
       </tbody>
     </table>
 
@@ -105,6 +113,26 @@
         <tr>
           <td><code>.to_json(path)</code></td>
           <td>Saves result as a structured JSON file. If no path is passed, returns a dict.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Utility Functions</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Function</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>recap_results(results_dict)</code></td>
+          <td>Generate comprehensive summary statistics from multiple DriftResult objects.</td>
+        </tr>
+        <tr>
+          <td><code>print_results_recap(results_dict)</code></td>
+          <td>Print formatted recap summary of multiple drift results to console.</td>
         </tr>
       </tbody>
     </table>

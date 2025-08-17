@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import os
 from datetime import datetime, timedelta
-from etsi.watchdog import DriftCheck, Monitor, DriftComparator
+from etsi.watchdog import DriftCheck, Monitor, DriftComparator, print_results_recap
 
 
 def generate_data():
@@ -36,6 +36,10 @@ def test_drift_check():
         result.plot()
         result.to_json(f"logs/drift_{feat}.json")
 
+    # NEW: Demonstrate recap functionality
+    print("\n--- DRIFT ANALYSIS RECAP ---")
+    print_results_recap(results)
+
 
 def test_monitor():
     print("\n==== Running DriftMonitor ====")
@@ -60,6 +64,10 @@ def test_monitor():
         print(f"{date.date()} —")
         for feat, result in res.items():
             print(f"  {feat}: {result.summary()}")
+
+    # NEW: Demonstrate monitor recap functionality
+    print("\n--- ROLLING MONITORING RECAP ---")
+    monitor.print_recap(results)
 
 
 def test_comparator():

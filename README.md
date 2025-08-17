@@ -16,6 +16,7 @@
 - PSI-based Drift Detection (more algorithms coming)
 - Rolling Monitoring with time-frequency windowing
 - Version Drift Comparison between model/data snapshots
+- **Comprehensive Drift Recap & Summary Reports**
 - Built-in Visualization & JSON Export
 - Minimal Dependencies & Fast Performance
 - Clear API, suitable for both research and production
@@ -77,6 +78,23 @@ v2 = check.run(live2, features=["age", "salary"])
 
 comp = DriftComparator(v1, v2)
 print(comp.diff())
+```
+
+---
+
+### 🔹 Comprehensive Drift Recap
+```python
+from etsi.watchdog import print_results_recap
+
+# Get a formatted summary of drift analysis
+check = DriftCheck(ref)
+results = check.run(live, features=["age", "salary"])
+print_results_recap(results)
+
+# For rolling monitoring recap
+monitor = Monitor(ref)
+rolling_results = monitor.watch_rolling(live, window=50, freq="D")
+monitor.print_recap(rolling_results)
 ```
 
 ---
